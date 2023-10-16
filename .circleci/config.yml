@@ -83,4 +83,4 @@ workflows:
       #       - build-and-push
       - scan: 
           requires:
-            -build
+            - build
