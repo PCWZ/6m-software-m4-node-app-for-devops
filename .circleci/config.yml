@@ -52,22 +52,22 @@ jobs:
         - snyk/scan:
           docker-image-name: $IMAGE_NAME
 
-  deploy:
-    docker:
-      - image: cimg/node:16.10
-    steps:
-      - setup_remote_docker
-      - heroku/install #installs heroku cli for our run command
-      - checkout
-      - run:
-          name: Heroku Container Push
-          command: |
-            heroku container:login
-            heroku container:push web -a pcwz-su-devops
-            heroku container:release web -a pcwz-su-devops
-          #the push command pushes the image to heroku's container registry
-          #The release command deploys the image from heroku's container registry
-          #the name of the group of commans we are running
+  # deploy:
+  #   docker:
+  #     - image: cimg/node:16.10
+  #   steps:
+  #     - setup_remote_docker
+  #     - heroku/install #installs heroku cli for our run command
+  #     - checkout
+  #     - run:
+  #         name: Heroku Container Push
+  #         command: |
+  #           heroku container:login
+  #           heroku container:push web -a pcwz-su-devops
+  #           heroku container:release web -a pcwz-su-devops
+  #         #the push command pushes the image to heroku's container registry
+  #         #The release command deploys the image from heroku's container registry
+  #         #the name of the group of commans we are running
 workflows:
   simple_workflow:
     jobs:
