@@ -78,6 +78,9 @@ workflows:
       - build-and-push:
           requires:
             - test
-      - deploy:
+      # - deploy:
+      #     requires:
+      #       - build-and-push
+      - scan: 
           requires:
-            - build-and-push
+            -build
