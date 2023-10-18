@@ -1,15 +1,13 @@
 version: 2.1
-orbs:
+orbs: 
   node: circleci/node@5.0.1
-  docker: circleci/docker@2.1.4
-  heroku: circleci/heroku@2.0.0 #Heroku orb
-  snyk: snyk/snyk@1.5.0 #3rd party orb of snyk
-jobs:
-  build:
-    docker:
+  docker: circleci/docker@2.1.4 
+jobs: 
+  build: 
+    docker: 
       - image: cimg/node:16.10
     steps:
-      - checkout
+      - checkout 
       - node/install-packages:
           pkg-manager: npm
       - run: |
@@ -25,64 +23,35 @@ jobs:
       - run: |
           echo "Running tests..."
           npm run test
-
   build-and-push:
-    executor: docker/docker #State the environment  that we are using
+    executor: docker/docker 
     steps:
-      - setup_remote_docker #This allows use to run docker commands just in case
+      - setup_remote_docker 
       - checkout
       - docker/check
       - docker/build:
-          image: pcwz/educational-space
-          tag: 1.0.1
+          image: terencegaffudsu/education-space
+          tag: <<pipeline.git.tag>>
       - docker/push:
-          image: pcwz/educational-space
-          tag: 1.0.1
-  scan: 
-    docker: 
-       - image: cimg/node:16.10
-    environment:
-       IMAGE_NAME: pcwz/educational-space #the IMAGE_NAME is a variable we could use in our jobs/steps
-    steps:
-        - checkout
-        - setup_remote_docker
-        - docker/check
-        - run: docker build -t $IMAGE_NAME .
-          # $IMAGE_NAME gets the value of the IMAGE_NAME from the environment defined above.
-        - snyk/scan:
-            docker-image-name: $IMAGE_NAME
-            # severity-threshold: high
+          image: terencegaffudsu/education-space
+          tag: <<pipeline.git.tag>>
 
-
-  # deploy:
-  #   docker:
-  #     - image: cimg/node:16.10
-  #   steps:
-  #     - setup_remote_docker
-  #     - heroku/install #installs heroku cli for our run command
-  #     - checkout
-  #     - run:
-  #         name: Heroku Container Push
-  #         command: |
-  #           heroku container:login
-  #           heroku container:push web -a pcwz-su-devops
-  #           heroku container:release web -a pcwz-su-devops
-  #         #the push command pushes the image to heroku's container registry
-  #         #The release command deploys the image from heroku's container registry
-  #         #the name of the group of commans we are running
-workflows:
+workflows: 
   simple_workflow:
     jobs:
-      - build
-      - test:
+      - build:
+          filters:
+            branches:
+              only: main
+      - test: 
           requires:
             - build
+          filters:
+            branches:
+              only: main
       - build-and-push:
-          requires:
-            - test
-      # - deploy:
-      #     requires:
-      #       - build-and-push
-      - scan: 
-          requires:
-            - build
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
